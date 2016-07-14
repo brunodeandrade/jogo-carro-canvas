@@ -8,6 +8,12 @@ function Sprite (img) {
     this.img = img;
     this.posX;
     this.posY;
+    this.posX2;
+    this.posY2;
+    this.posX3;
+    this.posY3;
+    this.posX4;
+    this.posY4;
 }
 
 function Obstaculo (img,tipo) {
@@ -15,18 +21,49 @@ function Obstaculo (img,tipo) {
   this.posX;
   this.posY;
   this.tipo = tipo;
+  this.posX2;
+  this.posY2;
+  this.posX3;
+  this.posY3;
+  this.posX4;
+  this.posY4;
 }
 
 
-Game.renderizarImagemNaPosicao= function (img,x,y) {
+Game.verificarColisao = function (obstaculo) {
+
+  if((obstaculo.posX >= this.carro.posX && obstaculo.posY >= this.carro.posY) && 
+    (obstaculo.posX2 <= this.carro.posX2 && obstaculo.posY2 >= this.carro.posY2) &&
+    (obstaculo.posX3 >= this.carro.posX3 && obstaculo.posY3 <= this.carro.posY3) &&
+    (obstaculo.posX4 <= this.carro.posX4 && obstaculo.posY4 <= this.carro.posY4)) {
+    console.log("COLIDIU");
+  }
+
+}
+
+Game.renderizarImagemNaPosicao = function (img,x,y) {
+  this.carro.posX2 = this.carro.posX + 43;
+  this.carro.posY2 = this.carro.posY;
+  this.carro.posX3 = this.carro.posX;
+  this.carro.posY3 = this.carro.posY + 90;
+  this.carro.posX4 = this.carro.posX + 43;
+  this.carro.posY4 = this.carro.posY + 90;
+  this.carro
   img = img;
   ctx = this.context;
   ctx.drawImage(img, x, y);
 }
 
-Game.renderizarImagemObstaculos= function () {
+Game.renderizarImagemObstaculos = function () {
 
   for(i = 0; i < this.obstaculos.length; i++){
+    this.obstaculos[i].posX2 = this.obstaculos[i].posX + 53;
+    this.obstaculos[i].posY2 = this.obstaculos[i].posY;
+    this.obstaculos[i].posX3 = this.obstaculos[i].posX3;
+    this.obstaculos[i].posY3 = this.obstaculos[i].posY + 108;
+    this.obstaculos[i].posX4 = this.obstaculos[i].posX + 53;
+    this.obstaculos[i].posY4 = this.obstaculos[i].posY + 108;
+    Game.verificarColisao(this.obstaculos[i]);
     ctx.drawImage(this.obstaculos[i].img, this.obstaculos[i].posX, this.obstaculos[i].posY);
   }
 }
@@ -35,6 +72,7 @@ Game.carregarImagemCarro = function () {
   this.carro.img.src = 'imagens/carro.png';
   this.carro.posX = 350;
   this.carro.posY = 500;
+
   Game.renderizarImagemNaPosicao(this.carro.img,this.carro.posX,this.carro.posY);
 };
 
@@ -148,7 +186,7 @@ Game.initialize = function() {
   this.entities = [];
   this.context = document.getElementById("canvas").getContext("2d");
   document.addEventListener('keydown', Game.keyDown);
-  this.quantidade_obstaculos_tipo_1 = 5;
+  this.quantidade_obstaculos_tipo_1 = 1;
   this.velY = 0;
   this.velX = 0;
   this.speed = 5;
