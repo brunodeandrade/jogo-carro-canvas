@@ -43,11 +43,22 @@ Game.desenhar = function (texto,cor,x,y) {
 Game.animarExplosao = function (contador) {
 
   imagem = this.explosoes[contador].img;
-  console.log("Img: ",imagem.src);
-  sleep(30);
+  sleep(10);
   Game.renderizarImagemNaPosicao(imagem,this.carro.posX-50,this.carro.posY);
   
 }
+
+Game.animarFumaca = function (contador) {
+  imagem = this.fumacas[contador].img;
+  var j;
+  
+  for(j = 0; j < this.obstaculos.length; j++) { 
+    if(this.obstaculos[j].tipo == 0)
+      Game.renderizarImagemNaPosicao(imagem,this.obstaculos[j].posX+10,this.obstaculos[j].posY-7);
+  }
+  
+}
+
 Game.finalizarJogo = function () {
 
   this.gameOver = true;
@@ -148,6 +159,14 @@ Game.carregarAnimacaoExplosao = function () {
   }
 }
 
+Game.carregarFumacas = function () {
+  var i;
+  for(i = 0; i < 24; i++) {
+    fumaca = new Sprite(new Image());
+    fumaca.img.src = 'imagens/fumaca/blackSmoke'.concat(i).concat('.png');
+    this.fumacas.push(fumaca);
+  }
+}
 function randomIntFromInterval(min,max)
 {
     return Math.floor(Math.random()*(max-min+1)+min);
@@ -163,19 +182,19 @@ Game.carregarImagensObstaculos = function () {
       obstaculo.img.src = 'imagens/ambulancia.png';
       obstaculo.tipo = 0;
       obstaculo.posXWidth =  43;
-      obstaculo.posYHeight =  103;
+      obstaculo.posYHeight =  96;
     }
     else if(i%5 == 1) {
       obstaculo.img.src = 'imagens/carro_azul.png';
       obstaculo.tipo = 0;
       obstaculo.posXWidth =  50;
-      obstaculo.posYHeight =  106;
+      obstaculo.posYHeight =  95;
     }
     else if(i%5 == 2) {
       obstaculo.img.src = 'imagens/policia.png'; 
       obstaculo.tipo = 0;
       obstaculo.posXWidth =  40;
-      obstaculo.posYHeight =  56;
+      obstaculo.posYHeight =  66;
     }
     else if(i%5 == 3) {
       obstaculo.img.src = 'imagens/oleo.png';
@@ -239,7 +258,7 @@ Game.calcularPosicaoRua = function () {
   for( i = 0; i < this.ruas.length; i++){
 
     if (this.ruas[i].posY > 600) {
-      this.ruas[i].posY = -1430;
+      this.ruas[i].posY = -1420;
     }
 
     this.ruas[i].posY += this.velocidadeRuaEObstaculos;
@@ -333,7 +352,9 @@ Game.initialize = function(inicio) {
   this.pontuacao = 0;
   this.pontuacaoTemp = 0;
   this.explosoes = [];
+  this.fumacas = [];
   this.contadorExplosao = 0;
+  this.contadorFumaca = 0;
 
   if(inicio){
     this.maiorPontuacao = 0;
@@ -344,6 +365,7 @@ Game.initialize = function(inicio) {
   this.ruas.push(Game.carregarImagemRua());
   Game.posicaoInicialRuas();
   Game.carregarImagemCarro();
+  Game.carregarFumacas();
   Game.carregarAnimacaoExplosao();
   Game.carregarImagensObstaculos();
   for(i = 0; i < this.obstaculos.length; i++){
@@ -355,12 +377,7 @@ Game.initialize = function(inicio) {
 
   this.antigaPosX = this.carro.posX;
   this.inicio = true;
-  // Game.renderizarImagemNaPosicao(this.carro.img,this.carro.posX,this.carro.posY);
-  // =====
-  // Example
-  this.rect_x = 0;
-  this.rect_y = 0;
-  // =====
+
 };
 
 Game.pausarJogo = function() {
@@ -423,11 +440,22 @@ Game.draw = function() {
       Game.gerarPontuacao();
       Game.calcularPosicaoCarro();
       Game.calcularPosicaoObstaculos();
+
+
       Game.calcularPosicaoRua();
+
+       if(this.contadorFumaca == 24){
+        this.contadorFumaca = 0;
+      }
+
+        Game.animarFumaca(this.contadorFumaca);
+
+        this.contadorFumaca++;
       if(!this.gameOver)
         Game.renderizarImagemObstaculos();
       Game.renderizarImagemNaPosicao(this.carro.img,this.carro.posX,this.carro.posY);
-      
+
+     
     }
   } else {
       if(this.contadorExplosao == 32) {
