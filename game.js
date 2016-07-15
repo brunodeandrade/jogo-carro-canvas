@@ -23,15 +23,31 @@ function Obstaculo (img,tipo) {
 }
 
 
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}
+
+
 Game.desenhar = function (texto,cor,x,y) {
-  
   ctx.font = "bold 30px Arial";
   ctx.fillStyle = cor;
   ctx.textAlign = "center";
   ctx.fillText(texto, x, y);
 }
 
+Game.animarExplosao = function (contador) {
 
+  imagem = this.explosoes[contador].img;
+  console.log("Img: ",imagem.src);
+  sleep(30);
+  Game.renderizarImagemNaPosicao(imagem,this.carro.posX-50,this.carro.posY);
+  
+}
 Game.finalizarJogo = function () {
 
   this.gameOver = true;
@@ -64,11 +80,11 @@ Game.verificarColisao = function (obstaculo) {
 
   if(((obstaculo.posX + obstaculo.posXWidth) >= this.carro.posX) &&
     (obstaculo.posX <= (this.carro.posX + this.carro.posXWidth-10)) &&
-    ((obstaculo.posY-5 + obstaculo.posYHeight) >= this.carro.posY) &&
-    (obstaculo.posY-5 <= (this.carro.posY + this.carro.posYHeight))){
+    ((obstaculo.posY+10 + obstaculo.posYHeight) >= this.carro.posY) &&
+    (obstaculo.posY+10 <= (this.carro.posY + this.carro.posYHeight))){
       switch(obstaculo.tipo){
         case 0:
-          Game.finalizarJogo();
+          this.gameOver = true;
           break;
         case 1:
           Game.desviarCarro();
@@ -122,6 +138,15 @@ Game.carregarImagemRua = function () {
   return rua;
   // Game.renderizarImagemNaPosicao(this.rua.img,this.carro.posX,this.carro.posY);
 };
+
+Game.carregarAnimacaoExplosao = function () {
+  var i;
+  for(i = 0; i < 32; i++) {
+    explosao = new Sprite(new Image());
+    explosao.img.src = 'imagens/explosao/expl_10_00'.concat(i).concat('.png');
+    this.explosoes.push(explosao);
+  }
+}
 
 function randomIntFromInterval(min,max)
 {
@@ -307,6 +332,8 @@ Game.initialize = function(inicio) {
   this.teclaLiberada = true;
   this.pontuacao = 0;
   this.pontuacaoTemp = 0;
+  this.explosoes = [];
+  this.contadorExplosao = 0;
 
   if(inicio){
     this.maiorPontuacao = 0;
@@ -317,6 +344,7 @@ Game.initialize = function(inicio) {
   this.ruas.push(Game.carregarImagemRua());
   Game.posicaoInicialRuas();
   Game.carregarImagemCarro();
+  Game.carregarAnimacaoExplosao();
   Game.carregarImagensObstaculos();
   for(i = 0; i < this.obstaculos.length; i++){
     if(this.obstaculos[i].tipo == 0)
@@ -401,7 +429,15 @@ Game.draw = function() {
       Game.renderizarImagemNaPosicao(this.carro.img,this.carro.posX,this.carro.posY);
       
     }
-  }
+  } else {
+      if(this.contadorExplosao == 32) {
+        Game.finalizarJogo();
+      }
+      else{
+        Game.animarExplosao(this.contadorExplosao);
+        this.contadorExplosao++;
+      }
+    }
   // }
 
   // this.antigaPosX = this.carro.posX;
